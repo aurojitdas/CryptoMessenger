@@ -1,0 +1,15 @@
+﻿<Window x:Class="test_wpf.Server_window"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:test_wpf"
+        mc:Ignorable="d"
+        Title="Server_window" Height="450" Width="800">
+    <Grid>
+        <TextBox x:Name="textBox" HorizontalAlignment="Left" Margin="93,80,0,0" TextWrapping="Wrap" Text="127.0.0.1" VerticalAlignment="Top" Width="120" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        <Button x:Name="Connect_button" Content="Connect" HorizontalAlignment="Left" Margin="269,83,0,0" VerticalAlignment="Top" Click="Connect_button_Click"/>
+        <TextBox x:Name="Server_log" TextWrapping="Wrap" Text="TextBox" Margin="337,10,127,16" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+
+    </Grid>
+</Window>
