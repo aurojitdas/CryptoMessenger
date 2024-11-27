@@ -62,13 +62,25 @@ namespace chat_app
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
                         data = Encoding.ASCII.GetString(bytes, 0, i);
-                        mWindow.UpdateServerLog("Received: " + data );
-                        // Console.WriteLine("Received: {0}", data);
-                        data = data.ToUpper();
-                        byte[] msg = Encoding.ASCII.GetBytes(data);
-                        stream.Write(msg, 0, msg.Length);
-                        mWindow.UpdateServerLog("Sent: " + data);
-                        //Console.WriteLine("Sent: {0}", data);
+
+                        if (data.StartsWith("CKey_Start", StringComparison.OrdinalIgnoreCase))
+                        {
+
+                            mWindow.UpdateServerLog("Received: " + data);
+                            
+
+                        }
+                        else
+                        {
+                            mWindow.UpdateServerLog("Received: " + data);
+                            // Console.WriteLine("Received: {0}", data);
+                            data = data.ToUpper();
+                            byte[] msg = Encoding.ASCII.GetBytes(data);
+                            stream.Write(msg, 0, msg.Length);
+                            mWindow.UpdateServerLog("Sent: " + data);
+                            //Console.WriteLine("Sent: {0}", data);
+                        }
+
                     }
                     // Shutdown and end connection
                     client.Close();
