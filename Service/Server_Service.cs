@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 using System.Windows.Threading;
 using test_wpf;
 
@@ -12,12 +13,15 @@ namespace chat_app
 {
     internal class Server_service
     {
-        TcpListener server = null;
+        bool isKeyExchanged = false;
+        TcpListener server;
+        KeyExchange_Service keys;
 
-        public Server_window mWindow = null;
+        public Server_window mWindow;
         public Server_service(Server_window window)
         {
             mWindow = window;
+            keys = new KeyExchange_Service();
         }
         
 
@@ -28,13 +32,13 @@ namespace chat_app
                 Int32 port = 13000;
                 IPAddress localAddr = IPAddress.Parse("127.0.0.1");
                 server = new TcpListener(localAddr, port);
-
+              
                 mWindow.UpdateServerLog("Waiting for a connection...");
                
                 server.Start();
                 // Buffer for reading data
                 Byte[] bytes = new Byte[256];
-                String data = null;
+                String? data;
                 while (true)
                 {
                     TcpClient client = server.AcceptTcpClient();
@@ -43,6 +47,18 @@ namespace chat_app
                     // Get a stream object for reading and writing NetworkStream
                     NetworkStream stream = client.GetStream();
                     int i;
+                    if (!isKeyExchanged)
+                    {
+                       
+                        string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());
+                        publicKey = "Key_Start" + publicKey;
+                        byte[] msg = Encoding.ASCII.GetBytes(publicKey);
+                        stream.Write(msg, 0, msg.Length);
+                        
+                        mWindow.UpdateServerLog("keyStart: \n"+ publicKey + "\nKey end \n");
+
+                    }
+
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
                         data = Encoding.ASCII.GetString(bytes, 0, i);

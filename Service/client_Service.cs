@@ -1,9 +1,11 @@
-﻿using System;
+﻿using chat_app;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows.Interop;
 
 namespace test_wpf
 {
@@ -12,12 +14,14 @@ namespace test_wpf
         Client_window client_Window;
         TcpClient client;
         NetworkStream stream;
+        KeyExchange_Service keys;
         //buffer
         Byte[] bytes = new Byte[256];
         String data = null;
         public client_Service(Client_window client_Window)
         {
             this.client_Window = client_Window;
+            keys = new KeyExchange_Service();
         }
         public void client_start()
         {
@@ -45,6 +49,7 @@ namespace test_wpf
                 byte[] msg = Encoding.ASCII.GetBytes(data);
                 // Send the message to the connected TcpServer
                 stream.Write(msg, 0, msg.Length);
+                
 
             }
             catch (Exception ex)
@@ -60,7 +65,22 @@ namespace test_wpf
                 {
                     Int32 bytesRead = stream.Read(bytes, 0, bytes.Length);
                     data = Encoding.ASCII.GetString(bytes, 0, bytesRead);
-                    client_Window.UpdateClientLog("Received: " + data);
+
+                    if (data.StartsWith("Key_Start", StringComparison.OrdinalIgnoreCase))
+                    {
+                        
+                        client_Window.UpdateClientLog("Received: " + data);
+                        string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());
+                        publicKey = "CKey_Start" + publicKey;
+                        byte[] publickeyMsg = Encoding.ASCII.GetBytes(publicKey);
+                        stream.Write(publickeyMsg, 0, publickeyMsg.Length);
+
+                    }
+                    else
+                    {
+                        
+                    }
+                   
                     //Console.WriteLine("Received: {0}", data);
                     if (data.Equals("EXIT", StringComparison.OrdinalIgnoreCase))
                     {
