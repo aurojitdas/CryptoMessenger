@@ -31,8 +31,9 @@ namespace chat_app
 
         public byte[] generateSharedSecret(byte[] receivedPublicKey)
         {
+            byte[] publicKeyBytes = Convert.FromBase64String(Encoding.ASCII.GetString(receivedPublicKey));
             ECDiffieHellmanCng _key = new ECDiffieHellmanCng(CngKey.Import(privateKeyBlob, CngKeyBlobFormat.EccPrivateBlob));
-            CngKey recievedKey = CngKey.Import(receivedPublicKey, CngKeyBlobFormat.EccPublicBlob);
+            CngKey recievedKey = CngKey.Import(publicKeyBytes, CngKeyBlobFormat.EccPublicBlob);
             byte[] sharedSecret = _key.DeriveKeyMaterial(recievedKey);
             return sharedSecret;
         }
