@@ -5,11 +5,126 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:test_wpf"
         mc:Ignorable="d"
-        Title="Server_window" Height="450" Width="800">
-    <Grid>
-        <TextBox x:Name="textBox" HorizontalAlignment="Left" Margin="93,80,0,0" TextWrapping="Wrap" Text="127.0.0.1" VerticalAlignment="Top" Width="120" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-        <Button x:Name="Connect_button" Content="Connect" HorizontalAlignment="Left" Margin="269,83,0,0" VerticalAlignment="Top" Click="Connect_button_Click"/>
-        <TextBox x:Name="Server_log" TextWrapping="Wrap" Text="TextBox" Margin="337,10,127,16" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        Title="Secure Server" 
+        Height="500" 
+        Width="800"
+        WindowStartupLocation="CenterScreen"
+        Background="#F0F0F0">
 
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+
+        <!-- Header -->
+        <Border Grid.Row="0" 
+                Background="#27AE60" 
+                Padding="20">
+            <StackPanel>
+                <TextBlock Text="Secure Server"
+                         FontSize="24"
+                         FontWeight="Bold"
+                         Foreground="White"
+                         HorizontalAlignment="Center"/>
+                <TextBlock Text="Server Connection Interface"
+                         FontSize="16"
+                         Foreground="#ECF0F1"
+                         HorizontalAlignment="Center"
+                         Margin="0,5,0,0"/>
+            </StackPanel>
+        </Border>
+
+        <!-- Description -->
+        <TextBlock Grid.Row="1"
+                   Margin="10,11,30,29"
+                   TextWrapping="Wrap"
+                   TextAlignment="Center"
+                   FontSize="14">
+            Configure server settings and monitor connection status.
+        </TextBlock>
+
+        <!-- Connection Panel -->
+        <StackPanel Grid.Row="2" 
+                    HorizontalAlignment="Left" 
+                    VerticalAlignment="Top" 
+                    Orientation="Horizontal" 
+                    Margin="10,10,0,0">
+            <TextBlock Text="Server IP:"
+                      VerticalAlignment="Center"
+                      FontSize="14"
+                      Margin="0,0,10,0"/>
+
+            <TextBox x:Name="textBox"
+                     Width="200"
+                     Height="40"
+                     Margin="10"
+                     Padding="10,0"
+                     FontSize="16"
+                     VerticalContentAlignment="Center"
+                     Text="127.0.0.1">
+                <TextBox.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </TextBox.Resources>
+            </TextBox>
+
+            <Button x:Name="Connect_button"
+                    Content="Start Server"
+                    Width="150"
+                    Height="40"
+                    Margin="10"
+                    Background="#27AE60"
+                    Foreground="White"
+                    FontSize="16"
+                    Click="Connect_button_Click">
+                <Button.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="CornerRadius" Value="5"/>
+                    </Style>
+                </Button.Resources>
+            </Button>
+        </StackPanel>
+
+        <!-- Server Logs -->
+        <Border Grid.Row="3" 
+                Background="White" 
+                Margin="20"
+                BorderBrush="#DDDDDD"
+                BorderThickness="1"
+                CornerRadius="5">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <TextBlock Text="Server Logs"
+                          FontSize="14"
+                          FontWeight="SemiBold"
+                          Margin="15,10,10,5"/>
+
+                <TextBox x:Name="Server_log"
+                         Grid.Row="1"
+                         Margin="10"
+                         Padding="5"
+                         TextWrapping="Wrap"
+                         IsReadOnly="True"
+                         VerticalScrollBarVisibility="Auto"
+                         Background="#F8F9FA"
+                         FontFamily="Consolas"
+                         FontSize="12"
+                         Text="Server Log">
+                    <TextBox.Resources>
+                        <Style TargetType="Border">
+                            <Setter Property="CornerRadius" Value="3"/>
+                        </Style>
+                    </TextBox.Resources>
+                </TextBox>
+            </Grid>
+        </Border>
     </Grid>
 </Window>
