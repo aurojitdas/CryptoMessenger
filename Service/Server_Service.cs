@@ -20,7 +20,10 @@ namespace chat_app
         NetworkStream stream;
         AES_Service aes;
         byte[] IV;
-        
+        bool IV_Generated = false;
+        bool sharedKeyGenerated = false;
+        byte[] sharedSecretKey;
+
         public Server_window mWindow;
         public Server_service(Server_window window)
         {
@@ -66,6 +69,7 @@ namespace chat_app
                         msg = Encoding.ASCII.GetBytes(iv);
                         stream.Write(msg, 0, msg.Length);
                         mWindow.UpdateServerLog("IV Sent...");
+                        IV_Generated = true;
 
                     }
                     //Recive subroutine
@@ -107,18 +111,27 @@ namespace chat_app
                     mWindow.UpdateServerLog("Public key Recieved...");
                     String publicKeyClient = data.Replace("CKey_Start", string.Empty);
                     mWindow.UpdateServerLog("Generating Secret key for secure Communication...");
-                    byte [] sharedSecretKey = keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyClient));
+                    sharedSecretKey = keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyClient));
                     mWindow.UpdateServerLog("Secret key Generated for secure Communication...");
+                    sharedKeyGenerated = true;
                     //mWindow.UpdateServerLog(Convert.ToBase64String(sharedSecretKey));
                 }
                 else
                 {
-                    
                     string base64Message = Convert.ToBase64String(bytes, 0, i);
-                    mWindow.UpdateServerLog("Received: " + base64Message);
+                    mWindow.UpdateServerLog("Received Encrypted Message: " + base64Message);
                     byte[] recievedBytes = Convert.FromBase64String(base64Message);
-                    stream.Write(recievedBytes, 0, recievedBytes.Length);
-                    mWindow.UpdateServerLog("Sent: " + base64Message);
+
+                    if (sharedKeyGenerated&&IV_Generated)
+                    {
+                        String decryptedMessage =aes.decrypt(recievedBytes, sharedSecretKey,IV);
+                        mWindow.UpdateServerLog("Decrypted Message: " + decryptedMessage);
+                        stream.Write(recievedBytes, 0, recievedBytes.Length);
+                        mWindow.UpdateServerLog("Sent: " + base64Message);
+                    }
+                   
+                   
+                   
                 }
 
             }
