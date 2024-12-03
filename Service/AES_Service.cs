@@ -54,7 +54,7 @@ namespace test_wpf
 
         }
 
-        public string decrypt(byte[] cipherText, byte[] Key, byte[] IV) 
+        public string decrypt(byte[] cipherText, byte[] Key, byte[] IV)
         {
             if (cipherText == null || cipherText.Length <= 0)
                 throw new ArgumentNullException(nameof(cipherText));
@@ -65,18 +65,30 @@ namespace test_wpf
 
             string plaintext = null;
 
-            Aes aesAlg = Aes.Create();
+            // Create an Aes object with proper disposal
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = Key;
+                aesAlg.IV = IV;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.PKCS7;
 
-            aesAlg.Key = Key;
-            aesAlg.IV = IV;
+                using (ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV))
+                {
+                    using (MemoryStream msDecrypt = new MemoryStream(cipherText))
+                    {
+                        using (CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read))
+                        {
+                            using (StreamReader srDecrypt = new StreamReader(csDecrypt, Encoding.UTF8))
+                            {
+                                // Read to end and ensure proper stream closing
+                                plaintext = srDecrypt.ReadToEnd();
+                            }
+                        }
+                    }
+                }
+            }
 
-            ICryptoTransform decryptor = aesAlg.CreateDecryptor(aesAlg.Key, aesAlg.IV);
-
-
-            MemoryStream msDecrypt = new MemoryStream(cipherText);
-            CryptoStream csDecrypt = new CryptoStream(msDecrypt, decryptor, CryptoStreamMode.Read);
-            StreamReader srDecrypt = new StreamReader(csDecrypt);
-            plaintext = srDecrypt.ReadToEnd();
             return plaintext;
         }
 
