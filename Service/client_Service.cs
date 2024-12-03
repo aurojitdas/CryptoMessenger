@@ -99,15 +99,17 @@ namespace test_wpf
                         String publicKeyServer = data.Replace("Key_Start", string.Empty);                       
                         client_Window.UpdateClientLog("Received: Public key of server..." );
                         string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());
+
                         publicKey = "CKey_Start" + publicKey;
                         byte[] publickeyMsg = Encoding.ASCII.GetBytes(publicKey);
                         stream.Write(publickeyMsg, 0, publickeyMsg.Length);
                         client_Window.UpdateClientLog("Public key Sent...");
+
                         client_Window.UpdateClientLog("Generating Secret key for secure Communication...");
                         sharedSecretKey =keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyServer));
                         client_Window.UpdateClientLog("Secret key Generated for secure Communication...");
                         sharedKeyGenerated = true;
-                        //client_Window.UpdateClientLog(Convert.ToBase64String(sharedScretKey));
+                       
                     }
                     else if (data.StartsWith("IV_Start", StringComparison.OrdinalIgnoreCase))
                     {
@@ -122,8 +124,22 @@ namespace test_wpf
                     {
 
                         string base64Message = Convert.ToBase64String(bytes, 0, bytesRead);
-                        client_Window.UpdateClientLog("Received: " + base64Message);
-                        byte[] recievedBytes = Convert.FromBase64String(base64Message); 
+                        client_Window.UpdateClientLog("Received Encrypted Message: " + base64Message);
+                        byte[] recievedBytes = Convert.FromBase64String(base64Message);
+
+
+                        if (sharedKeyGenerated && IV_recieved)
+                        {
+                            if (aES_Service == null)
+                            {
+                                aES_Service = new AES_Service();
+
+                            }
+                            String decryptedMessage = aES_Service.decrypt(recievedBytes, sharedSecretKey, IV);
+                            client_Window.UpdateClientLog("Decrypted Message: " + decryptedMessage);
+                            /*stream.Write(recievedBytes, 0, recievedBytes.Length);
+                            mWindow.UpdateServerLog("Sent: " + base64Message);*/
+                        }
 
                     }
 

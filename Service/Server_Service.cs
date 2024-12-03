@@ -23,6 +23,7 @@ namespace chat_app
         bool IV_Generated = false;
         bool sharedKeyGenerated = false;
         byte[] sharedSecretKey;
+        String data = null;
 
         public Server_window mWindow;
         public Server_service(Server_window window)
@@ -126,13 +127,49 @@ namespace chat_app
                     {
                         String decryptedMessage =aes.decrypt(recievedBytes, sharedSecretKey,IV);
                         mWindow.UpdateServerLog("Decrypted Message: " + decryptedMessage);
-                        stream.Write(recievedBytes, 0, recievedBytes.Length);
-                        mWindow.UpdateServerLog("Sent: " + base64Message);
+                        /*stream.Write(recievedBytes, 0, recievedBytes.Length);
+                        mWindow.UpdateServerLog("Sent: " + base64Message);*/
                     }
                    
                    
                    
                 }
+
+            }
+        }
+
+        public void send_message()
+        {
+            try
+            {
+                if (IV_Generated && sharedKeyGenerated)
+                {
+                    if (aes == null)
+                    {
+                        aes = new AES_Service();
+
+                    }
+
+                    data = mWindow.getMessage();
+                    mWindow.UpdateServerLog("Plain Text: " + data);
+
+                    byte[] enc_msg = aes.encrypt(data, sharedSecretKey, IV);
+                    mWindow.UpdateServerLog("Encrypted Text: " + Convert.ToBase64String(enc_msg));
+                    // Send the message to the connected TcpServer
+                    stream.Write(enc_msg, 0, enc_msg.Length);
+                }
+                else
+                {
+                    data = "Channel is not secure please wait...";
+                    byte[] msg = Encoding.ASCII.GetBytes(data);
+                    // Send the message to the connected TcpServer
+                    stream.Write(msg, 0, msg.Length);
+                }
+
+
+            }
+            catch (Exception ex)
+            {
 
             }
         }
