@@ -16,9 +16,14 @@ namespace test_wpf
         TcpClient client;
         NetworkStream stream;
         KeyExchange_Service keys;
+        byte[] IV;
+        byte[] sharedSecretKey;
         //buffer
         Byte[] bytes = new Byte[256];
         String data = null;
+        bool IV_recieved = false;
+        bool sharedKeyGenerated = false;
+        AES_Service? aES_Service =null;
         public client_Service(Client_window client_Window)
         {
             this.client_Window = client_Window;
@@ -46,10 +51,29 @@ namespace test_wpf
         {
             try
             {
-                data = client_Window.getMessage();
-                byte[] msg = Encoding.ASCII.GetBytes(data);
-                // Send the message to the connected TcpServer
-                stream.Write(msg, 0, msg.Length);
+                if (IV_recieved&&sharedKeyGenerated)
+                {
+                    if (aES_Service == null)
+                    {
+                        aES_Service = new AES_Service();
+
+                    }
+
+                    data = client_Window.getMessage();
+                    client_Window.UpdateClientLog("Plain Text: " + data);              
+
+                    byte[] enc_msg = aES_Service.encrypt(data,sharedSecretKey,IV);
+                    client_Window.UpdateClientLog("Encrypted Text: " + Convert.ToBase64String(enc_msg));
+                    // Send the message to the connected TcpServer
+                    stream.Write(enc_msg, 0, enc_msg.Length);
+                }
+                else
+                {
+                    data = "Channel is not secure please wait...";
+                    byte[] msg = Encoding.ASCII.GetBytes(data);
+                    // Send the message to the connected TcpServer
+                    stream.Write(msg, 0, msg.Length);
+                }
 
 
             }
@@ -62,6 +86,7 @@ namespace test_wpf
         {
             while (true)
             {
+               
                 if (stream != null)
                 {
                     Int32 bytesRead = stream.Read(bytes, 0, bytes.Length);
@@ -69,10 +94,8 @@ namespace test_wpf
 
                     if (data.StartsWith("Key_Start", StringComparison.OrdinalIgnoreCase))
                     {
-
-                        String publicKeyServer = data.Replace("Key_Start", string.Empty);
-
                         client_Window.UpdateClientLog("Initiating Key exchange...");
+                        String publicKeyServer = data.Replace("Key_Start", string.Empty);                       
                         client_Window.UpdateClientLog("Received: Public key of server..." );
                         string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());
                         publicKey = "CKey_Start" + publicKey;
@@ -80,9 +103,19 @@ namespace test_wpf
                         stream.Write(publickeyMsg, 0, publickeyMsg.Length);
                         client_Window.UpdateClientLog("Public key Sent...");
                         client_Window.UpdateClientLog("Generating Secret key for secure Communication...");
-                        byte[] sharedScretKey =keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyServer));
+                        sharedSecretKey =keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyServer));
                         client_Window.UpdateClientLog("Secret key Generated for secure Communication...");
-                        client_Window.UpdateClientLog(Convert.ToBase64String(sharedScretKey));
+                        sharedKeyGenerated = true;
+                        //client_Window.UpdateClientLog(Convert.ToBase64String(sharedScretKey));
+                    }
+                    else if (data.StartsWith("IV_Start", StringComparison.OrdinalIgnoreCase))
+                    {
+                        client_Window.UpdateClientLog("Initiating IV exchange...");
+                        String iv = data.Replace("IV_Start", string.Empty);
+                        client_Window.UpdateClientLog("Received: IV from server"+iv);
+                        IV = Convert.FromBase64String(iv);
+                        IV_recieved = true;
+                       
                     }
                     else
                     {
