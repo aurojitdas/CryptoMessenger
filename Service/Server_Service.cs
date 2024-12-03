@@ -18,6 +18,8 @@ namespace chat_app
         TcpListener server;
         KeyExchange_Service keys;
         NetworkStream stream;
+        AES_Service aes;
+        byte[] IV;
         
         public Server_window mWindow;
         public Server_service(Server_window window)
@@ -47,15 +49,26 @@ namespace chat_app
                     int i;
                     if (!isKeyExchanged)
                     {
-                       
-                        string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());
+                        //initiating key exchange using DH
                         mWindow.UpdateServerLog("Initiating Key exchange...");
+                        string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());                       
                         publicKey = "Key_Start" + publicKey;
                         byte[] msg = Encoding.ASCII.GetBytes(publicKey);
                         stream.Write(msg, 0, msg.Length);
                         mWindow.UpdateServerLog("Public key Sent...");
 
+                        //Generating and sending IV for use with AES
+                        mWindow.UpdateServerLog("Initiating IV exchange...");
+                        aes = new AES_Service();
+                        IV = aes.generateIV();
+                        string iv = Convert.ToBase64String(IV);
+                        iv =  "IV_Start" + iv;
+                        msg = Encoding.ASCII.GetBytes(iv);
+                        stream.Write(msg, 0, msg.Length);
+                        mWindow.UpdateServerLog("IV Sent...");
+
                     }
+                    //Recive subroutine
                     readNetworkStream_subroutine();
 
                     // Shutdown and end connection
@@ -67,7 +80,7 @@ namespace chat_app
                 mWindow.UpdateServerLog("Exception: " + e.Message );
             }
             finally
-            { // Stop listening for new clients
+            { 
                 server.Stop();
             }
           
@@ -77,8 +90,10 @@ namespace chat_app
         public void readNetworkStream_subroutine()
         {
             String? data;
+
             // Buffer for reading data
             Byte[] bytes = new Byte[256];
+
             int i;
 
             while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
@@ -94,17 +109,16 @@ namespace chat_app
                     mWindow.UpdateServerLog("Generating Secret key for secure Communication...");
                     byte [] sharedSecretKey = keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyClient));
                     mWindow.UpdateServerLog("Secret key Generated for secure Communication...");
-                    mWindow.UpdateServerLog(Convert.ToBase64String(sharedSecretKey));
+                    //mWindow.UpdateServerLog(Convert.ToBase64String(sharedSecretKey));
                 }
                 else
                 {
-                    mWindow.UpdateServerLog("Received: " + data);
-                    // Console.WriteLine("Received: {0}", data);
-                    data = data.ToUpper();
-                    byte[] msg = Encoding.ASCII.GetBytes(data);
-                    stream.Write(msg, 0, msg.Length);
-                    mWindow.UpdateServerLog("Sent: " + data);
-                    //Console.WriteLine("Sent: {0}", data);
+                    
+                    string base64Message = Convert.ToBase64String(bytes, 0, i);
+                    mWindow.UpdateServerLog("Received: " + base64Message);
+                    byte[] recievedBytes = Convert.FromBase64String(base64Message);
+                    stream.Write(recievedBytes, 0, recievedBytes.Length);
+                    mWindow.UpdateServerLog("Sent: " + base64Message);
                 }
 
             }
