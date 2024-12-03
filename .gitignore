@@ -157,22 +157,3 @@ bin/
 obj/
 publish/
 node_modules/
-
-# Ensure your .gitignore covers these directories
-*.iml
-
-# Ignore Visual Studio specific files
-.vscode
-.nuget
-
-# Ignore other build output directories
-build/
-Artifacts/
-
-# C# dependencies
-*.csproj
-*.sln
-*.props
-*.targets
-
-# Add more customizations as needed for your project
