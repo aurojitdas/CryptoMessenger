@@ -20,6 +20,7 @@ namespace test_wpf
     /// </summary>
     public partial class Server_window : Window
     {
+        Server_service? server = null;
         public Server_window()
         {
             InitializeComponent();
@@ -28,8 +29,8 @@ namespace test_wpf
 
         private void Connect_button_Click(object sender, RoutedEventArgs e)
         {
-            Server_log.Text += "\"Waiting for a test..." + "\n";
-            Server_service server = new Server_service(this);
+          
+            server = new Server_service(this);
 
             Task.Run(() => { server.start_server(); });
             //server.start_server1();
@@ -41,6 +42,28 @@ namespace test_wpf
             {
                 Server_log.Text += message + "\n";
             });
+        }
+
+        private void Send_button_Click(object sender, RoutedEventArgs e)
+        {
+            if (server == null)
+            {
+                UpdateServerLog("Connect to server first");
+            }
+            else
+            {
+                server.send_message();
+            }
+        }
+
+        public string getMessage()
+        {
+            string? message = null;
+            Dispatcher.Invoke(() =>
+            {
+                message = ServermessageTextBox.Text;
+            });
+            return message;
         }
     }
 }
