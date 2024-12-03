@@ -6,6 +6,7 @@ using System.Linq;
 using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Interop;
 
 namespace test_wpf
@@ -119,7 +120,11 @@ namespace test_wpf
                     }
                     else
                     {
-                        //client_Window.UpdateClientLog("Received: " + data);
+
+                        string base64Message = Convert.ToBase64String(bytes, 0, bytesRead);
+                        client_Window.UpdateClientLog("Received: " + base64Message);
+                        byte[] recievedBytes = Convert.FromBase64String(base64Message); 
+
                     }
 
                     //Console.WriteLine("Received: {0}", data);
