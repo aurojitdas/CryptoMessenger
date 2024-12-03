@@ -23,21 +23,33 @@ namespace test_wpf
                 throw new ArgumentNullException(nameof(IV));
 
             byte[] encrypted;
-            Aes aesAlg = Aes.Create();
+            // Create an Aes object with proper disposal
+            using (Aes aesAlg = Aes.Create())
+            {
+                aesAlg.Key = Key;
+                aesAlg.IV = IV;
+                aesAlg.Mode = CipherMode.CBC;
+                aesAlg.Padding = PaddingMode.PKCS7;
 
-            aesAlg.Key = Key;
-            aesAlg.IV = IV;
-            
-            ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV);
+                using (ICryptoTransform encryptor = aesAlg.CreateEncryptor(aesAlg.Key, aesAlg.IV))
+                {
+                    using (MemoryStream msEncrypt = new MemoryStream())
+                    {
+                        using (CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write))
+                        {
+                            // Convert the plain text to a byte array using UTF8 encoding
+                            byte[] plainBytes = Encoding.UTF8.GetBytes(plainText);
 
-            MemoryStream msEncrypt = new MemoryStream();
-            CryptoStream csEncrypt = new CryptoStream(msEncrypt, encryptor, CryptoStreamMode.Write);
-            StreamWriter swEncrypt = new StreamWriter(csEncrypt);
+                            // Write the byte array directly to the CryptoStream
+                            csEncrypt.Write(plainBytes, 0, plainBytes.Length);
+                            csEncrypt.FlushFinalBlock();
+                        }
 
-            swEncrypt.Write(plainText);
-
-            encrypted = msEncrypt.ToArray();
-
+                        // Get the encrypted bytes
+                        encrypted = msEncrypt.ToArray();
+                    }
+                }
+            }
             return encrypted;
 
         }
@@ -66,6 +78,15 @@ namespace test_wpf
             StreamReader srDecrypt = new StreamReader(csDecrypt);
             plaintext = srDecrypt.ReadToEnd();
             return plaintext;
+        }
+
+        public byte[] generateIV()
+        {
+            Aes aesAlg = Aes.Create();
+            
+           aesAlg.GenerateIV();
+           byte[] iv = aesAlg.IV;
+            return iv;
         }
     }
 }
