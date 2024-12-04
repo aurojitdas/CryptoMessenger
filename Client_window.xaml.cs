@@ -26,20 +26,6 @@ namespace test_wpf
 
         }
 
-        private void button_Click(object sender, RoutedEventArgs e)
-        {
-            Client_Log.Text = "Trying to connect to server at "+ IP_addressBox.Text+"...";
-            client = new client_Service(this);
-            Task.Run(() => { 
-                client.client_start();
-                client.recieve_subroutine();
-            });
-            Task.Run(() => {               
-                client.recieve_subroutine();
-            });
-
-        }
-
         public void UpdateClientLog(string message)
         {
             Dispatcher.Invoke(() =>
@@ -68,14 +54,34 @@ namespace test_wpf
             return ipaddr;
         }
 
-        private void Send_button_Click(object sender, RoutedEventArgs e)
+       
+        private void Client_Log_TextChanged(object sender, TextChangedEventArgs e)
         {
+            // Automatically scroll to the end of the TextBox when text is added
+            Client_Log.ScrollToEnd();
+        }
 
+        private void Connect_button_Click(object sender, RoutedEventArgs e)
+        {
+            Client_Log.Text = "Trying to connect to server at " + IP_addressBox.Text + "...";
+            client = new client_Service(this);
+            Task.Run(() => {
+                client.client_start();
+                client.recieve_subroutine();
+            });
+            Task.Run(() => {
+                client.recieve_subroutine();
+            });
+        }
+
+        private void Send_button_Click_1(object sender, RoutedEventArgs e)
+        {
             if (client == null)
             {
                 UpdateClientLog("Connect to server first");
             }
-            else {
+            else
+            {
                 client.send_message();
             }
         }

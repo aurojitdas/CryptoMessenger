@@ -6,38 +6,94 @@
         xmlns:local="clr-namespace:test_wpf"
         mc:Ignorable="d"
         Title="Secure Client" 
-        Height="500" 
-        Width="800"
+        Height="600" 
+        Width="900"
         WindowStartupLocation="CenterScreen"
-        Background="#F0F0F0">
+        Background="#F4F6F7">
+
     <Window.Resources>
+        <Style x:Key="HeaderTextStyle" TargetType="TextBlock">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="HorizontalAlignment" Value="Center"/>
+        </Style>
+
+        <Style x:Key="RoundedTextBoxStyle" TargetType="TextBox">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Padding" Value="10,0"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="VerticalContentAlignment" Value="Center"/>
+            <Setter Property="BorderThickness" Value="1"/>
+            <Setter Property="BorderBrush" Value="#BDC3C7"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type TextBox}">
+                        <Border Background="{TemplateBinding Background}" 
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="8">
+                            <ScrollViewer Margin="2" 
+                                          BorderThickness="0"
+                                          x:Name="PART_ContentHost"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
+        <Style x:Key="GreenButtonStyle" TargetType="Button">
+            <Setter Property="Height" Value="40"/>
+            <Setter Property="Margin" Value="10,0"/>
+            <Setter Property="Background" Value="#2ECC71"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}" 
+                                CornerRadius="8"
+                                BorderThickness="0">
+                            <TextBlock Text="{TemplateBinding Content}"
+                                       HorizontalAlignment="Center"
+                                       VerticalAlignment="Center"
+                                       Foreground="{TemplateBinding Foreground}"
+                                       FontSize="{TemplateBinding FontSize}"
+                                       FontWeight="{TemplateBinding FontWeight}"/>
+                        </Border>
+                        <ControlTemplate.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="#27AE60"/>
+                            </Trigger>
+                        </ControlTemplate.Triggers>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+        </Style>
+
         <Style x:Key="WatermarkTextBox" TargetType="{x:Type TextBox}">
             <Setter Property="Template">
                 <Setter.Value>
                     <ControlTemplate TargetType="{x:Type TextBox}">
                         <Grid>
-                            <TextBox Text="{Binding Path=Text, 
-                                     RelativeSource={RelativeSource TemplatedParent}, 
-                                     Mode=TwoWay, 
-                                     UpdateSourceTrigger=PropertyChanged}"
-                                     x:Name="PART_TextBox"
-                                     BorderBrush="{TemplateBinding BorderBrush}"
-                                     BorderThickness="{TemplateBinding BorderThickness}"
-                                     Background="{TemplateBinding Background}"
-                                     Padding="{TemplateBinding Padding}"
-                                     VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}"
-                                     FontSize="{TemplateBinding FontSize}"/>
-                            <TextBlock Text="Enter your message here" 
+                            <TextBox x:Name="PART_InnerTextBox"
+                                     Text="{Binding Text, 
+                                            RelativeSource={RelativeSource TemplatedParent}, 
+                                            Mode=TwoWay, 
+                                            UpdateSourceTrigger=PropertyChanged}"
+                                     Style="{StaticResource RoundedTextBoxStyle}"
+                                     Background="White"/>
+                            <TextBlock Text="{TemplateBinding Tag}"
                                        Foreground="Gray"
                                        IsHitTestVisible="False"
-                                       VerticalAlignment="{TemplateBinding VerticalContentAlignment}"
-                                       Padding="{TemplateBinding Padding}"
-                                       Margin="2,0,0,0">
+                                       VerticalAlignment="Center"
+                                       HorizontalAlignment="Left"
+                                       Padding="20,0,0,0">
                                 <TextBlock.Style>
                                     <Style TargetType="{x:Type TextBlock}">
                                         <Setter Property="Visibility" Value="Collapsed"/>
                                         <Style.Triggers>
-                                            <DataTrigger Binding="{Binding Path=Text, ElementName=PART_TextBox}" Value="">
+                                            <DataTrigger Binding="{Binding Text, ElementName=PART_InnerTextBox}" Value="">
                                                 <Setter Property="Visibility" Value="Visible"/>
                                             </DataTrigger>
                                         </Style.Triggers>
@@ -51,7 +107,7 @@
         </Style>
     </Window.Resources>
 
-    <Grid>
+    <Grid Margin="20">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
@@ -62,141 +118,114 @@
 
         <!-- Header -->
         <Border Grid.Row="0" 
-                Background="#27AE60" 
-                Padding="20">
+                Background="#2ECC71" 
+                CornerRadius="10"
+                Padding="20"
+                Margin="0,0,0,15">
             <StackPanel>
                 <TextBlock Text="Secure Client"
-                         FontSize="24"
-                         FontWeight="Bold"
-                         Foreground="White"
-                         HorizontalAlignment="Center"/>
+                           Style="{StaticResource HeaderTextStyle}"
+                           FontSize="28"
+                           FontWeight="Bold"/>
                 <TextBlock Text="Client Connection Interface"
-                         FontSize="16"
-                         Foreground="#ECF0F1"
-                         HorizontalAlignment="Center"
-                         Margin="0,5,0,0"/>
+                           Style="{StaticResource HeaderTextStyle}"
+                           FontSize="16"
+                           Margin="0,5,0,0"
+                           Opacity="0.9"/>
             </StackPanel>
         </Border>
 
         <!-- Description -->
         <TextBlock Grid.Row="1"
-                   Margin="10,11,30,29"
+                   Margin="10,0,10,15"
                    TextWrapping="Wrap"
                    TextAlignment="Center"
-                   FontSize="14">
+                   FontSize="14"
+                   Foreground="#34495E">
             Enter the server IP address below to establish a secure connection.
         </TextBlock>
 
         <!-- Connection Panel -->
-        <StackPanel Grid.Row="2" 
-                    HorizontalAlignment="Left" 
-                    VerticalAlignment="Top" 
-                    Orientation="Horizontal" 
-                    Margin="10,10,0,0">
-            <TextBlock Text="Server IP:"
-                      VerticalAlignment="Center"
-                      FontSize="14"
-                      Margin="0,0,10,0" RenderTransformOrigin="-2.462,-3.328"/>
+        <Grid Grid.Row="2" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <TextBox x:Name="IP_addressBox"
-                     Width="200"
-                     Height="40"
-                     Margin="10"
-                     Padding="10,0"
-                     FontSize="16"
-                     VerticalContentAlignment="Center"
-                     Text="127.0.0.1">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </TextBox.Resources>
-            </TextBox>
+            <TextBlock Grid.Column="0" 
+                       Text="Server IP:"
+                       VerticalAlignment="Center"
+                       FontSize="14"
+                       Margin="0,0,10,0"/>
 
-            <Button x:Name="Connect_button"
+            <TextBox Grid.Column="1"
+                     x:Name="IP_addressBox"
+                     Style="{StaticResource RoundedTextBoxStyle}"
+                     Text="127.0.0.1"
+                     Margin="0,0,10,0"/>
+
+            <Button Grid.Column="2"
+                    x:Name="Connect_button"
                     Content="Connect"
-                    Width="150"
-                    Height="40"
-                    Margin="10"
-                    Background="#27AE60"
-                    Foreground="White"
-                    FontSize="16"
-                    Click="button_Click">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
-        </StackPanel>
+                    Style="{StaticResource GreenButtonStyle}"
+                    Width="150" Margin="10,0,10,0" VerticalAlignment="Bottom" Click="Connect_button_Click"/>
+        </Grid>
 
         <!-- Message Input Panel -->
-        <StackPanel Grid.Row="3" 
-                    HorizontalAlignment="Left" 
-                    VerticalAlignment="Top" 
-                    Orientation="Horizontal">
-            <TextBox x:Name="MessageBox"
-                     Style="{StaticResource WatermarkTextBox}"
-                     Width="400"
-                     Height="40"
-                     Margin="10"
-                     Padding="10,0"
-                     FontSize="16">
-                <TextBox.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </TextBox.Resources>
-            </TextBox>
+        <Grid Grid.Row="3" Margin="0,0,0,10">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
 
-            <Button x:Name="Send_button"
+            <TextBox Grid.Column="0"
+                     x:Name="MessageBox"
+                     Style="{StaticResource WatermarkTextBox}"
+                     Tag="Enter your message here"
+                     Margin="0,0,10,0"/>
+
+            <Button Grid.Column="1"
+                    x:Name="Send_button"
                     Content="Send"
-                    Width="100"
-                    Height="40"
-                    Margin="10"
-                    Background="#27AE60"
-                    Foreground="White"
-                    FontSize="16"
-                    Click="Send_button_Click">
-                <Button.Resources>
-                    <Style TargetType="Border">
-                        <Setter Property="CornerRadius" Value="5"/>
-                    </Style>
-                </Button.Resources>
-            </Button>
-        </StackPanel>
+                    Style="{StaticResource GreenButtonStyle}"
+                    Width="100" Click="Send_button_Click_1"/>
+        </Grid>
 
         <!-- Connection Logs -->
         <Border Grid.Row="4" 
                 Background="White" 
-                Margin="20"
-                BorderBrush="#DDDDDD"
+                BorderBrush="#E0E0E0"
                 BorderThickness="1"
-                CornerRadius="5">
+                CornerRadius="10">
             <Grid>
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
-                <TextBlock Text="Connection Logs"
-                          FontSize="14"
-                          FontWeight="SemiBold"
-                          Margin="15,10,10,5"/>
+                <TextBlock Grid.Row="0"
+                           Text="Connection Logs"
+                           FontSize="16"
+                           FontWeight="SemiBold"
+                           Margin="15,15,10,10"
+                           Foreground="#34495E"/>
 
-                <TextBox x:Name="Client_Log"
-                         Grid.Row="1"
-                         Margin="10"
-                         Padding="5"
+                <TextBox Grid.Row="1"
+                         x:Name="Client_Log"
+                         Margin="15"
+                         Padding="10"
                          TextWrapping="Wrap"
                          IsReadOnly="True"
                          VerticalScrollBarVisibility="Auto"
                          Background="#F8F9FA"
                          FontFamily="Consolas"
-                         FontSize="12">
+                         FontSize="12"
+                         BorderThickness="1"
+                         BorderBrush="#E0E0E0" TextChanged="Client_Log_TextChanged">
                     <TextBox.Resources>
                         <Style TargetType="Border">
-                            <Setter Property="CornerRadius" Value="3"/>
+                            <Setter Property="CornerRadius" Value="5"/>
                         </Style>
                     </TextBox.Resources>
                 </TextBox>

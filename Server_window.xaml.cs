@@ -65,6 +65,11 @@ namespace test_wpf
             });
             return message;
         }
+
+        private void Server_log_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            Server_log.ScrollToEnd();
+        }
     }
 }
 
