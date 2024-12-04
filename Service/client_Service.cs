@@ -38,8 +38,7 @@ namespace test_wpf
                 client = new TcpClient(client_Window.getIpAddress(), port);
                 stream = client.GetStream();
                 client_Window.UpdateClientLog("Connected to : " + client_Window.getIpAddress());
-                //stream.Close();
-                //client.Close();
+                
             }
             catch (Exception ex)
             {
@@ -109,16 +108,15 @@ namespace test_wpf
                         sharedSecretKey =keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyServer));
                         client_Window.UpdateClientLog("Secret key Generated for secure Communication...");
                         sharedKeyGenerated = true;
-                       
+                        client_Window.UpdateClientLog(">>>>>>>>>>Secure Channel Established<<<<<<<<<<");
                     }
                     else if (data.StartsWith("IV_Start", StringComparison.OrdinalIgnoreCase))
                     {
                         client_Window.UpdateClientLog("Initiating IV exchange...");
                         String iv = data.Replace("IV_Start", string.Empty);
-                        client_Window.UpdateClientLog("Received: IV from server"+iv);
+                        client_Window.UpdateClientLog("Received: IV from server");
                         IV = Convert.FromBase64String(iv);
-                        IV_recieved = true;
-                       
+                        IV_recieved = true;                       
                     }
                     else
                     {
@@ -190,7 +188,7 @@ namespace test_wpf
 
 			}
 		}
+        
 
-       
-	}
+    }
 }

@@ -25,10 +25,10 @@ namespace chat_app
         byte[] sharedSecretKey;
         String data = null;
 
-        public Server_window mWindow;
+        public Server_window server_window;
         public Server_service(Server_window window)
         {
-            mWindow = window;
+            server_window = window;
             keys = new KeyExchange_Service();
         }
         
@@ -40,13 +40,13 @@ namespace chat_app
                 Int32 port = 13000;
                 IPAddress localAddr = IPAddress.Parse("127.0.0.1");
                 server = new TcpListener(localAddr, port);
-                mWindow.UpdateServerLog("Waiting for a connection...");               
+                server_window.UpdateServerLog("Waiting for a connection...");               
                 server.Start();            
                 
                 while (true)
                 {
                     TcpClient client = server.AcceptTcpClient();
-                    mWindow.UpdateServerLog("Connected");
+                    server_window.UpdateServerLog("Connected");
                     
                     // Get a stream object for reading and writing NetworkStream
                     stream = client.GetStream();
@@ -54,22 +54,22 @@ namespace chat_app
                     if (!isKeyExchanged)
                     {
                         //initiating key exchange using DH
-                        mWindow.UpdateServerLog("Initiating Key exchange...");
+                        server_window.UpdateServerLog("Initiating Key exchange...");
                         string publicKey = Convert.ToBase64String(keys.generatekeyPublickey());                       
                         publicKey = "Key_Start" + publicKey;
                         byte[] msg = Encoding.ASCII.GetBytes(publicKey);
                         stream.Write(msg, 0, msg.Length);
-                        mWindow.UpdateServerLog("Public key Sent...");
+                        server_window.UpdateServerLog("Public key Sent...");
 
                         //Generating and sending IV for use with AES
-                        mWindow.UpdateServerLog("Initiating IV exchange...");
+                        server_window.UpdateServerLog("Initiating IV exchange...");
                         aes = new AES_Service();
                         IV = aes.generateIV();
                         string iv = Convert.ToBase64String(IV);
                         iv =  "IV_Start" + iv;
                         msg = Encoding.ASCII.GetBytes(iv);
                         stream.Write(msg, 0, msg.Length);
-                        mWindow.UpdateServerLog("IV Sent...");
+                        server_window.UpdateServerLog("IV Sent...");
                         IV_Generated = true;
 
                     }
@@ -82,7 +82,7 @@ namespace chat_app
             }
             catch (Exception e)
             {
-                mWindow.UpdateServerLog("Exception: " + e.Message );
+                server_window.UpdateServerLog("Exception: " + e.Message );
             }
             finally
             { 
@@ -109,24 +109,24 @@ namespace chat_app
                 {
 
                     //mWindow.UpdateServerLog("Received: " + data);
-                    mWindow.UpdateServerLog("Public key Recieved...");
+                    server_window.UpdateServerLog("Public key Recieved...");
                     String publicKeyClient = data.Replace("CKey_Start", string.Empty);
-                    mWindow.UpdateServerLog("Generating Secret key for secure Communication...");
+                    server_window.UpdateServerLog("Generating Secret key for secure Communication...");
                     sharedSecretKey = keys.generateSharedSecret(Encoding.ASCII.GetBytes(publicKeyClient));
-                    mWindow.UpdateServerLog("Secret key Generated for secure Communication...");
+                    server_window.UpdateServerLog("Secret key Generated for secure Communication...");
                     sharedKeyGenerated = true;
-                    //mWindow.UpdateServerLog(Convert.ToBase64String(sharedSecretKey));
+                    server_window.UpdateServerLog(">>>>>>>>>>Secure Channel Established<<<<<<<<<<");
                 }
                 else
                 {
                     string base64Message = Convert.ToBase64String(bytes, 0, i);
-                    mWindow.UpdateServerLog("Received Encrypted Message: " + base64Message);
+                    server_window.UpdateServerLog("Received Encrypted Message: " + base64Message);
                     byte[] recievedBytes = Convert.FromBase64String(base64Message);
 
                     if (sharedKeyGenerated&&IV_Generated)
                     {
                         String decryptedMessage =aes.decrypt(recievedBytes, sharedSecretKey,IV);
-                        mWindow.UpdateServerLog("Decrypted Message: " + decryptedMessage);
+                        server_window.UpdateServerLog("Decrypted Message: " + decryptedMessage);
                         /*stream.Write(recievedBytes, 0, recievedBytes.Length);
                         mWindow.UpdateServerLog("Sent: " + base64Message);*/
                     }
@@ -150,11 +150,11 @@ namespace chat_app
 
                     }
 
-                    data = mWindow.getMessage();
-                    mWindow.UpdateServerLog("Plain Text: " + data);
+                    data = server_window.getMessage();
+                    server_window.UpdateServerLog("Plain Text: " + data);
 
                     byte[] enc_msg = aes.encrypt(data, sharedSecretKey, IV);
-                    mWindow.UpdateServerLog("Encrypted Text: " + Convert.ToBase64String(enc_msg));
+                    server_window.UpdateServerLog("Encrypted Text: " + Convert.ToBase64String(enc_msg));
                     // Send the message to the connected TcpServer
                     stream.Write(enc_msg, 0, enc_msg.Length);
                 }
